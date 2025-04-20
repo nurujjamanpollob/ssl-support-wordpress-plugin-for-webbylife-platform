@@ -3,6 +3,8 @@ This WordPress plugin offers a simple way to verify ACME verification challenges
 It works for only HTTP challenges, and it is designed to be used with the ACME protocol for obtaining SSL/TLS certificates. 
 This plugin is designed to be used by WebByLife utility. 
 
+This plugin won't activate if this plugin cannot listen at get request at /.well-known/acme-challenge/ path.
+
 ## How it works
 
 1. The plugin listens for incoming HTTP requests to yoursite/.well-known/acme-challenge/ 
