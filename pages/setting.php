@@ -167,11 +167,10 @@ add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), function ( $li
  * this method makes a get request to the /.well-known/acme-challenge/ with the auth key
  * and returns the response, false if the response is not valid
  *
- * @param string $url the url to make the request to
- *
  * @return bool the response from the server, false if the response is not valid
  */
 function make_get_request_to_api_integration() : bool {
+
 
     // build the url: wordpressaddress/.well-known/acme-challenge/auth_key
     $url = get_site_url() . '/.well-known/acme-challenge/ping';
@@ -201,6 +200,8 @@ function make_get_request_to_api_integration() : bool {
     if ( ! isset( $response_body['key'] ) || $response_body['key'] != 'ping' ) {
         return false;
     }
+
+
     // return true
     return true;
 }

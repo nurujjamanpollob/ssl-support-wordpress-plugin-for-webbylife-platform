@@ -17,21 +17,36 @@ require_once plugin_dir_path(__FILE__) . 'pages/setting.php';
 require_once plugin_dir_path(__FILE__) . 'handler/form_submit_handler.php';
 require_once plugin_dir_path(__FILE__) . 'pages/manage_acme_entry.php';
 
-class AdminNotice {
+register_activation_hook( __FILE__, 'ssl_support_for_webbylife_platform_activation_handler');
+// listen on plugin loaded
+add_action( 'activated_plugin', 'ssl_support_for_webbylife_platform_plugin_loaded' );
+
+/**
+ * Plugin loaded handler
+ *
+ * @return void
+ */
+function ssl_support_for_webbylife_platform_plugin_loaded() {
+	new CheckActivation();
+}
+
+class CheckActivation {
+
 
 
 	/**
 	 * Register the activation hook
 	 */
 	public function __construct() {
-		register_activation_hook( __FILE__, array( $this, 'install' ) );
+
+		$this->install();
 	}
 
 	/**
 	 * Check the dependent plugin version
 	 */
 	protected function is_compatible(): bool {
-		return make_get_request_to_api_integration();
+		return make_get_request_to_api_integration(true);
 	}
 
 	/**
@@ -40,6 +55,11 @@ class AdminNotice {
 	protected function deactivate_plugin() {
 		require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		deactivate_plugins( plugin_basename( __FILE__ ) );
+		// remove option from the database
+		delete_option( AUTH_KEY_SSL_SUPPORT_TOOL_WEBBYLIFE_PLATFORM );
+
+		$this->drop_web_by_life_ssl_support_table();
+
 		if ( isset( $_GET['activate'] ) ) {
 			unset( $_GET['activate'] );
 		}
@@ -52,8 +72,6 @@ class AdminNotice {
 		if ( ! $this->is_compatible()) {
 			$this->deactivate_plugin();
 			wp_die( 'Could not be activated. ' . $this->errormsg() );
-		} else {
-			ssl_support_for_webbylife_platform_activation_handler();
 		}
 	}
 
@@ -70,6 +88,14 @@ class AdminNotice {
 		printf( '<div class="%1$s"><p>%2$s</p></div>', $class, $message );
 	}
 
-}
+	function drop_web_by_life_ssl_support_table() {
+		require_once plugin_dir_path(__FILE__) . 'utility/Variables.php';
 
-new AdminNotice();
+		global $wpdb;
+		$table_name = $wpdb->prefix . SSL_CHALLENGE_DATA_TABLE_NAME;
+
+		// drop the table from the database
+		return $wpdb->query("DROP TABLE IF EXISTS $table_name");
+	}
+
+}

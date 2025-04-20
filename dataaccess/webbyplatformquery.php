@@ -224,4 +224,15 @@ class wbPlatformQuery {
 		return null;
 	}
 
+	// drop the table if it exists
+	public static function drop_web_by_life_ssl_support_table() {
+		require_once plugin_dir_path(__FILE__) . '../utility/Variables.php';
+
+		global $wpdb;
+		$table_name = $wpdb->prefix . SSL_CHALLENGE_DATA_TABLE_NAME;
+
+		// drop the table from the database
+		return $wpdb->query("DROP TABLE IF EXISTS $table_name");
+	}
+
 }
