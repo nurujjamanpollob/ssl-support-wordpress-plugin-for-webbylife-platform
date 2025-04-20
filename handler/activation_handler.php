@@ -17,7 +17,11 @@ function ssl_support_for_webbylife_platform_activation_handler() {
 	add_option(AUTH_KEY_SSL_SUPPORT_TOOL_WEBBYLIFE_PLATFORM, generateRandomString(), '', true);
 	// add db table
 	require_once plugin_dir_path(__FILE__) . '../dataaccess/tables.php';
+
+
 	// create the table
 	create_ssl_support_for_webbylife_platform_acme_challenge_data_table();
+
+
 
 }

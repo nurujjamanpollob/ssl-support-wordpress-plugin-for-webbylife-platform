@@ -45,6 +45,23 @@ function ssl_support_for_webbylife_platform_settings_page() {
         </div>
 	<?php endif; ?>
 
+        <!-- Add big notice if the api is not working correctly -->
+    <?php if (!make_get_request_to_api_integration()) : ?>
+        <div class="notice notice-error is-dismissible">
+            <p>The API is not working correctly.
+                Maybe your server has automatic ACME certificate issuer, or another application or server intercepting request at
+                <?php get_site_url()?>/.well-known/acme-challenge/</p> <br>
+            <p>To fix this issue, please check your server configuration and make sure that the request is not intercepted by another application or server.</p>
+        </div>
+
+    <?php else : ?>
+        <div class="notice notice-success is-dismissible">
+            <p>The API is working correctly and normally. You can generate a new key.</p>
+        </div>
+
+    <?php endif; ?>
+
+
 
     <div class="wrap">
     <h1>Ssl Support For Webbylife Platform</h1>
@@ -145,5 +162,47 @@ add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), function ( $li
 
 	return $links;
 } );
+
+/**
+ * this method makes a get request to the /.well-known/acme-challenge/ with the auth key
+ * and returns the response, false if the response is not valid
+ *
+ * @param string $url the url to make the request to
+ *
+ * @return bool the response from the server, false if the response is not valid
+ */
+function make_get_request_to_api_integration() : bool {
+
+    // build the url: wordpressaddress/.well-known/acme-challenge/auth_key
+    $url = get_site_url() . '/.well-known/acme-challenge/ping';
+
+
+	// make a get request to the url
+	$response = wp_remote_get( $url );
+
+    // parse the response
+    if ( is_wp_error( $response ) ) {
+        return false;
+    }
+    $response_code = wp_remote_retrieve_response_code( $response );
+    $response_body = wp_remote_retrieve_body( $response );
+    // check if the response code is 200
+    if ( $response_code != 200 ) {
+        return false;
+    }
+    // check if the response body is by checking json decode, status is success and key is ping
+    $response_body = json_decode( $response_body, true );
+    if ( $response_body == null ) {
+        return false;
+    }
+    if ( ! isset( $response_body['status'] ) || $response_body['status'] != 'success' ) {
+        return false;
+    }
+    if ( ! isset( $response_body['key'] ) || $response_body['key'] != 'ping' ) {
+        return false;
+    }
+    // return true
+    return true;
+}
 
 

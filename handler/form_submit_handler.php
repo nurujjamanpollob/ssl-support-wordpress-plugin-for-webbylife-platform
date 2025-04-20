@@ -76,6 +76,23 @@ add_action( 'init', function () {
 		// get the 3rd path from the url
 		$acme_challenge_key = get_url_path( $request_uri, 3 );
 
+		// if the acme_challenge_key is matches with the auth key, that means testing is conducting and is successful
+		if ( $acme_challenge_key == 'ping' ) {
+			// create json response
+			$success_response = array(
+				'status' => 'success',
+				'message' => 'Testing GET API Integration is successful.',
+				'key' => 'ping'
+			);
+			// output the success response
+			$output = json_encode( $success_response );
+			// return the response
+			header( 'Content-Type: application/json' );
+			header( 'HTTP/1.1 200 OK' );
+			echo $output;
+			exit;
+		}
+
 		// now query the database to get the value of the challenge
 		$value = wbPlatformQuery::getValueOfAChallengeData( $acme_challenge_key );
 

@@ -4,9 +4,10 @@
  * Error response for the acme challenge get challenge content
  * @param string $message is the message to be output in message key
  * @param int $code is the response code. default is 400
+ * @param bool $is_data_add_failed is the data add false
  * @note output the message in json format
  */
-function output_acme_challenge_error_response_json(string $message, int $code = 400) {
+function output_acme_challenge_error_response_json(string $message, int $code = 400, bool $is_data_add_failed = false) {
 
 	// set the content type to application/json
 	header('Content-Type: application/json');
@@ -17,6 +18,8 @@ function output_acme_challenge_error_response_json(string $message, int $code = 
 	$response = [
 		'status' => 'error',
 		'message' => $message,
+		'code' => $code,
+		'data_creation_failed' => $is_data_add_failed,
 	];
 
 	// return the JSON encoded string
